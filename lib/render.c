@@ -53,3 +53,47 @@ void draw_grid(SDL_Renderer *ren, SDL_Window *win)
 	}
 
 }
+
+void draw_circle(SDL_Renderer *ren, int x, int y, int r, SDL_Color color)
+{
+    if (r < 0) return;
+
+    SDL_SetRenderDrawColor(ren, color.r, color.g, color.b, color.a);
+
+    int cx = 0;
+    int cy = r;
+    int d = 3 - 2 * r;
+
+    while (cx <= cy) {
+        SDL_RenderDrawPoint(ren, x + cx, y + cy);
+        SDL_RenderDrawPoint(ren, x - cx, y + cy);
+        SDL_RenderDrawPoint(ren, x + cx, y - cy);
+        SDL_RenderDrawPoint(ren, x - cx, y - cy);
+        SDL_RenderDrawPoint(ren, x + cy, y + cx);
+        SDL_RenderDrawPoint(ren, x - cy, y + cx);
+        SDL_RenderDrawPoint(ren, x + cy, y - cx);
+        SDL_RenderDrawPoint(ren, x - cy, y - cx);
+
+        if (d < 0) {
+            d += 4 * cx + 6;
+        } else {
+            d += 4 * (cx - cy) + 10;
+            cy--;
+        }
+        cx++;
+    }
+}
+
+void draw_pop(SDL_Renderer *ren, SDL_Window *win, Pop *p)
+{
+	int w, h;
+	SDL_GetWindowSize(win, &w, &h);
+	int boxw = w - 2*padding;
+	int boxh = h - 2*padding;
+
+	for(size_t i = 0; i<p->n;i++) {
+		int x = (int)(p->x[i] * (double)boxw) + padding;
+		int y = (int)(p->y[i] * (double)boxh) + padding;
+		draw_circle(ren, x, y, (int)(p->money[i]/100.0) ,(SDL_Color){180, 255, 190, 255});
+	}
+}

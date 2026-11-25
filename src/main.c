@@ -50,6 +50,14 @@ int main(int argc, char *argv[]) {
 	pop_init(&pop, n);
 	pop_set(&pop);
 
+	const Uint64 freq = SDL_GetPerformanceFrequency();
+	const Uint64 max_ticks = (Uint64)(MAX_FRAME_SECONDS * (double)freq);
+	Uint64 prev = SDL_GetPerformanceCounter();
+	Uint64 acc = 0;
+	double speed = 0.0625;
+	int paused = 0;
+	unsigned long steps = 0;
+
     int running = 1;
 
 	//--------------------------------LOOP
@@ -58,17 +66,54 @@ int main(int argc, char *argv[]) {
         SDL_Event e;
         while (SDL_PollEvent(&e)) {
             if (e.type == SDL_QUIT) running = 0;
-            if (e.type == SDL_KEYDOWN && (e.key.keysym.sym == SDLK_ESCAPE || e.key.keysym.sym == SDLK_q)) running = 0;
+            if (e.type != SDL_KEYDOWN || e.key.repeat) continue;
+            switch (e.key.keysym.sym) {
+            case SDLK_ESCAPE:
+            case SDLK_q:
+                running = 0;
+                break;
+            case SDLK_SPACE:
+                paused = !paused;
+                break;
+            case SDLK_UP:
+                if (speed < SIM_SPEED_MAX) { speed *= 2.0; acc = 0; }
+                break;
+            case SDLK_DOWN:
+                if (speed > SIM_SPEED_MIN) { speed /= 2.0; acc = 0; }
+                break;
+            default:
+                break;
+            }
         }
 
 		//--------------------------SIMULATION
 
-		step(&pop);
+		Uint64 now = SDL_GetPerformanceCounter();
+		Uint64 dt = now - prev;
+		prev = now;
+
+		if (!paused) {
+			const Uint64 step_ticks = (Uint64)((double)freq / (SIM_HZ * speed));
+			if (dt > max_ticks) dt = max_ticks;
+			acc += dt;
+			while (acc >= step_ticks) {
+				step(&pop);
+				acc -= step_ticks;
+				steps++;
+			}
+		}
 
 		//-----------------------------PLOT
 
 		draw_box(ren, win);
 		draw_grid(ren, win);
+		draw_pop(ren, win, &pop);
+
+		char hud[128];
+		snprintf(hud, sizeof hud, "%s | step %lu | %.2gx (%d Hz) | SPAZIO=pausa UP/DOWN=velocita | POP = %ld",
+		         paused ? "PAUSA" : "RUN", steps, speed, (int)(SIM_HZ * speed), n);
+		draw_text(ren, font, hud, padding + 10, padding + 10, 18,
+		          (SDL_Color){180, 255, 190, 255});
 
 		SDL_RenderPresent(ren);
 	}

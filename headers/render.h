@@ -12,5 +12,8 @@ void draw_box(SDL_Renderer *ren, SDL_Window *win);
 
 void draw_grid(SDL_Renderer *ren, SDL_Window *win);
 
+void draw_circle(SDL_Renderer *ren, int x, int y, int r, SDL_Color color);
+
+void draw_pop(SDL_Renderer *ren, SDL_Window *win, Pop *p);
 
 #endif

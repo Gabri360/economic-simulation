@@ -11,15 +11,23 @@
 #define HEIGHT (int)(WIDTH*1080/1920)
 #define padding 20
 
-#define FRT_SCALE 0.1
-#define SKILL_SCALE 0.5
-#define MONEY_SCALE 100
+#define FRT_SCALE 0.5
+#define SKILL_SCALE 0.1
+#define MONEY_SCALE 0.1
+#define REPLICATOR_SEED 0.1
+
+#define SIM_HZ 60
+#define MAX_FRAME_SECONDS 0.25
+#define SIM_SPEED_MIN 0.0625
+#define SIM_SPEED_MAX 8.0
 
 #include <stddef.h>
 typedef struct {
 	size_t n;
 	double *money;
 	double *skill;
+	double *x;
+	double *y;
 } Pop;
 
 #endif
