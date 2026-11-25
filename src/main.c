@@ -15,6 +15,7 @@ int main(int argc, char *argv[]) {
 	(void)argc; (void)argv;
 
 	//----------------------------------INIT
+	srand((unsigned)time(NULL));
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
         fprintf(stderr, "SDL_Init: %s\n", SDL_GetError());
         return 1;
@@ -44,7 +45,10 @@ int main(int argc, char *argv[]) {
 		return 1;
 	}
 
-
+	Pop pop;
+	size_t n = 50;
+	pop_init(&pop, n);
+	pop_set(&pop);
 
     int running = 1;
 
@@ -59,9 +63,11 @@ int main(int argc, char *argv[]) {
 
 		//--------------------------SIMULATION
 
+		step(&pop);
 
 		//-----------------------------PLOT
 
+		draw_box(ren, win);
 		draw_grid(ren, win);
 
 		SDL_RenderPresent(ren);
@@ -69,6 +75,7 @@ int main(int argc, char *argv[]) {
 
 	TTF_CloseFont(font);
     TTF_Quit();
+	pop_free(&pop);
 	SDL_DestroyRenderer(ren);
 	SDL_DestroyWindow(win);
 	SDL_Quit();

@@ -17,9 +17,8 @@ void draw_text(SDL_Renderer *ren, TTF_Font *font, const char *text, int x, int y
     SDL_DestroyTexture(tex);
 }
 
-void draw_grid(SDL_Renderer *ren, SDL_Window *win)
+void draw_box(SDL_Renderer *ren, SDL_Window *win)
 {
-
 	int w, h;
 	SDL_GetWindowSize(win, &w, &h);
 
@@ -31,9 +30,15 @@ void draw_grid(SDL_Renderer *ren, SDL_Window *win)
 	SDL_RenderFillRect(ren, &r);
 	SDL_SetRenderDrawColor(ren, 50, 150, 60, 255);
 	SDL_RenderDrawRect(ren, &r);
+}
 
+void draw_grid(SDL_Renderer *ren, SDL_Window *win)
+{
 
-	SDL_SetRenderDrawColor(ren, 50, 150, 60, 255);
+	int w, h;
+	SDL_GetWindowSize(win, &w, &h);
+
+	SDL_SetRenderDrawColor(ren, 50, 150, 60, 100);
 	int cell_width = (w - 2*padding);
 	int cell_height = (h - 2*padding);
 
