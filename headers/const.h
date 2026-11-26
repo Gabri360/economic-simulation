@@ -16,6 +16,10 @@
 #define MONEY_SCALE 0.1
 #define REPLICATOR_SEED 0.1
 
+
+#define POS_NOISE 0.01
+#define POS_NOISE_SPEED 0.015
+
 #define SIM_HZ 60
 #define MAX_FRAME_SECONDS 0.25
 #define SIM_SPEED_MIN 0.0625
@@ -25,9 +29,16 @@
 typedef struct {
 	size_t n;
 	double *money;
+	double *prev_money;
 	double *skill;
 	double *x;
 	double *y;
+	double *prev_x;
+	double *prev_y;
+	double *x0;
+	double *y0;
+	double *phase_x;
+	double *phase_y;
 } Pop;
 
 #endif

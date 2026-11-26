@@ -84,16 +84,45 @@ void draw_circle(SDL_Renderer *ren, int x, int y, int r, SDL_Color color)
     }
 }
 
-void draw_pop(SDL_Renderer *ren, SDL_Window *win, Pop *p)
+void draw_circle_f(SDL_Renderer *ren, float x, float y, float r, SDL_Color color)
 {
+    if (r < 0.0f) return;
+
+    SDL_SetRenderDrawColor(ren, color.r, color.g, color.b, color.a);
+
+    int segments = (int)(2.0f * (float)M_PI * r);
+    if (segments < 8) segments = 8;
+    if (segments > 4096) segments = 4096;
+
+    float px = x + r;
+    float py = y;
+    for(int s = 1; s <= segments; s++) {
+        float a = 2.0f * (float)M_PI * (float)s / (float)segments;
+        float nx = x + r * cosf(a);
+        float ny = y + r * sinf(a);
+        SDL_RenderDrawLineF(ren, px, py, nx, ny);
+        px = nx;
+        py = ny;
+    }
+}
+
+void draw_pop(SDL_Renderer *ren, SDL_Window *win, const Pop *p, double alpha)
+{
+	if (alpha < 0.0) alpha = 0.0;
+	if (alpha > 1.0) alpha = 1.0;
+
 	int w, h;
 	SDL_GetWindowSize(win, &w, &h);
-	int boxw = w - 2*padding;
-	int boxh = h - 2*padding;
+	double boxw = (double)(w - 2*padding);
+	double boxh = (double)(h - 2*padding);
 
 	for(size_t i = 0; i<p->n;i++) {
-		int x = (int)(p->x[i] * (double)boxw) + padding;
-		int y = (int)(p->y[i] * (double)boxh) + padding;
-		draw_circle(ren, x, y, (int)(p->money[i]/100.0) ,(SDL_Color){180, 255, 190, 255});
+		double money = p->prev_money[i] + (p->money[i] - p->prev_money[i]) * alpha;
+		double px = p->prev_x[i] + (p->x[i] - p->prev_x[i]) * alpha;
+		double py = p->prev_y[i] + (p->y[i] - p->prev_y[i]) * alpha;
+		float x = padding + (float)(px * boxw);
+		float y = padding + (float)(py * boxh);
+		float r = (float)(money / ((double)p->n * 2.0));
+		draw_circle_f(ren, x, y, r, (SDL_Color){180, 255, 190, 255});
 	}
 }

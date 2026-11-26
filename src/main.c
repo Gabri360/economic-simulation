@@ -46,7 +46,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	Pop pop;
-	size_t n = 50;
+	size_t n = 150;
 	pop_init(&pop, n);
 	pop_set(&pop);
 
@@ -57,6 +57,7 @@ int main(int argc, char *argv[]) {
 	double speed = 0.0625;
 	int paused = 0;
 	unsigned long steps = 0;
+	double alpha = 0.0;
 
     int running = 1;
 
@@ -92,8 +93,8 @@ int main(int argc, char *argv[]) {
 		Uint64 dt = now - prev;
 		prev = now;
 
+		const Uint64 step_ticks = (Uint64)((double)freq / (SIM_HZ * speed));
 		if (!paused) {
-			const Uint64 step_ticks = (Uint64)((double)freq / (SIM_HZ * speed));
 			if (dt > max_ticks) dt = max_ticks;
 			acc += dt;
 			while (acc >= step_ticks) {
@@ -102,12 +103,13 @@ int main(int argc, char *argv[]) {
 				steps++;
 			}
 		}
+		if (!paused) alpha = (double)acc / (double)step_ticks;
 
 		//-----------------------------PLOT
 
 		draw_box(ren, win);
 		draw_grid(ren, win);
-		draw_pop(ren, win, &pop);
+		draw_pop(ren, win, &pop, alpha);
 
 		char hud[128];
 		snprintf(hud, sizeof hud, "%s | step %lu | %.2gx (%d Hz) | SPAZIO=pausa UP/DOWN=velocita | POP = %ld",
