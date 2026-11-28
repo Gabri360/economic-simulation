@@ -112,7 +112,7 @@ int main(int argc, char *argv[]) {
 		draw_pop(ren, win, &pop, alpha);
 
 		char hud[128];
-		snprintf(hud, sizeof hud, "%s | step %lu | %.2gx (%d Hz) | SPAZIO=pausa UP/DOWN=velocita | POP = %ld",
+		snprintf(hud, sizeof hud, "%s | step %lu | %.2gx (%d FPS) | SPAZIO=pausa UP/DOWN=velocita | POP = %ld",
 		         paused ? "PAUSA" : "RUN", steps, speed, (int)(SIM_HZ * speed), n);
 		draw_text(ren, font, hud, padding + 10, padding + 10, 18,
 		          (SDL_Color){180, 255, 190, 255});

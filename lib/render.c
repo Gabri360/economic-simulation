@@ -122,7 +122,7 @@ void draw_pop(SDL_Renderer *ren, SDL_Window *win, const Pop *p, double alpha)
 		double py = p->prev_y[i] + (p->y[i] - p->prev_y[i]) * alpha;
 		float x = padding + (float)(px * boxw);
 		float y = padding + (float)(py * boxh);
-		float r = (float)(money / ((double)p->n * 2.0));
+		float r = (float)(money / ((double)p->n * 1.0));
 		draw_circle_f(ren, x, y, r, (SDL_Color){180, 255, 190, 255});
 	}
 }

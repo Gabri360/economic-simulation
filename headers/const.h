@@ -11,10 +11,10 @@
 #define HEIGHT (int)(WIDTH*1080/1920)
 #define padding 20
 
-#define FRT_SCALE 0.5
+#define FRT_SCALE 0.1
 #define SKILL_SCALE 0.1
-#define MONEY_SCALE 0.1
-#define REPLICATOR_SEED 0.1
+#define MONEY_SCALE 0.0
+#define EXCHANGE_RATE 0.5
 
 
 #define POS_NOISE 0.01

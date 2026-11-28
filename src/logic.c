@@ -11,8 +11,8 @@ static double uniform(void)
 
 static double myrand(void)
 {
-    const double mu = 0.5;
-    const double sigma = 0.15;
+    const double mu = 0.0;
+    const double sigma = 0.40;
 
     static int has_spare = 0;
     static double spare;
@@ -133,34 +133,57 @@ void step(Pop *p)
 	}
 	pop_copy(p, &cp);
 
-	double total = 0.0;
 	for(size_t i=0;i<p->n;i++) {
 		p->prev_money[i] = cp.money[i];
 		p->prev_x[i] = cp.x[i];
 		p->prev_y[i] = cp.y[i];
-		total += cp.money[i];
 	}
 
-	double *next = malloc(p->n * sizeof *next);
-	if (!next) {
+	double *delta = calloc(p->n, sizeof *delta);
+	double *w = malloc(p->n * sizeof *w);
+	double *frt = malloc(p->n * sizeof *frt);
+
+	if (!delta || !w || !frt) {
+		free(delta);
+		free(w);
+		free(frt);
 		pop_free(&cp);
 		return;
 	}
 
-	double sum = 0.0;
-	for(size_t i=0;i<p->n;i++) {
-		double r = SKILL_SCALE * cp.skill[i] + (uniform() - 0.5) * FRT_SCALE;
-		double growth = 1.0 + r;
-		if (growth < 0.0) growth = 0.0;
+	/* la fluttuazione e' una proprieta' del ricevente, come nel modello originale */
+	for(size_t i=0;i<p->n;i++) frt[i] = uniform() * FRT_SCALE;
 
-		next[i] = cp.money[i] * growth + REPLICATOR_SEED;
-		sum += next[i];
+	for(size_t j=0;j<p->n;j++) {
+		double W = 0.0;
+		for(size_t i=0;i<p->n;i++) {
+			if (i == j) continue;
+
+			/* money[j]*skill[i] + money[j]*frt + money[i]*MONEY_SCALE */
+			double weight = cp.money[j] * cp.skill[i] * SKILL_SCALE
+			              + cp.money[j] * frt[i]
+							 + cp.money[i] * MONEY_SCALE;
+			w[i] = weight > 0.0 ? weight : 0.0;
+			W += w[i];
+		}
+		if (W <= 0.0) continue;
+
+		double budget = cp.money[j] * EXCHANGE_RATE;
+		if (budget > W) budget = W;
+		double k = budget / W;
+		for(size_t i=0;i<p->n;i++) {
+			if (i == j) continue;
+			double transfer = w[i] * k;
+			delta[i] += transfer;
+			delta[j] -= transfer;
+		}
 	}
 
-	if (sum > 0.0) {
-		double scale = total / sum;
-		for(size_t i=0;i<p->n;i++) p->money[i] = next[i] * scale;
-	}
+	for(size_t i=0;i<p->n;i++) p->money[i] = cp.money[i] + delta[i];
+
+	free(delta);
+	free(w);
+	free(frt);
 
 	for(size_t i=0;i<p->n;i++) {
 		p->phase_x[i] = cp.phase_x[i] + POS_NOISE_SPEED;
@@ -172,6 +195,5 @@ void step(Pop *p)
 		p->y[i] = ny < 0.0 ? 0.0 : (ny > 1.0 ? 1.0 : ny);
 	}
 
-	free(next);
 	pop_free(&cp);
 }
